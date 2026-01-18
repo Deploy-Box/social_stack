@@ -1,6 +1,11 @@
 version: '3.8'
 
 services:
+  web:
+    container_name: social-stack-web
+    build: ./frontend
+    ports:
+      - "8081:8081"
   postgres:
     image: postgres:15-alpine
     container_name: social-stack-postgres
