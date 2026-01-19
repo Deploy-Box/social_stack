@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../types/navigation';
 
 // Dummy conversations
 const DUMMY_CONVERSATIONS = [
@@ -38,8 +41,34 @@ const DUMMY_CONVERSATIONS = [
 ];
 
 export default function MessagingScreen() {
+
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>(); // Navigation hook for react app
+
+    const [isLoading, setLoading] = useState(false); // handles loading state while waiting to fetch conversation data
+    const [conversations, setConversations] = useState<typeof DUMMY_CONVERSATIONS>([]); // stores conversation data
+
+    const fetchConversations = async () => {
+        try {
+            const response = await fetch(process.env.API_URL + '/messages');
+            const data = await response.json();
+            setConversations(data);
+        }
+        catch (error) {
+            console.error(error);
+        }
+    }
+
+    useEffect(() => {
+        fetchConversations();
+    }, []);
+
+    const handlePress = (item: typeof DUMMY_CONVERSATIONS[0]) => {
+        navigation.navigate('ChatScreen', { conversationId: item.id }); //Navigates to the individual ChatScreen for that conversation
+    };
+
+    // Renders each conversation item in the flatlist
     const renderItem = ({ item }: { item: typeof DUMMY_CONVERSATIONS[0] }) => (
-        <TouchableOpacity style={styles.chatItem}>
+        <TouchableOpacity style={styles.chatItem} onPress={() => handlePress(item)}>
             <Image source={{ uri: item.user.avatar }} style={styles.avatar} />
             <View style={styles.chatInfo}>
                 <View style={styles.chatHeader}>

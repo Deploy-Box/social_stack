@@ -7,6 +7,7 @@ import FeedScreen from '../screens/FeedScreen';
 import MessagingScreen from '../screens/MessagingScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 
+
 const Tab = createBottomTabNavigator();
 
 export default function BottomTabNavigator() {
@@ -43,6 +44,7 @@ export default function BottomTabNavigator() {
             <Tab.Screen name="Feed" component={FeedScreen} />
             <Tab.Screen name="Messages" component={MessagingScreen} />
             <Tab.Screen name="Profile" component={ProfileScreen} />
+
         </Tab.Navigator>
     );
 }
