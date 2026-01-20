@@ -1,0 +1,64 @@
+name: Build and Push Docker image to Azure
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: dev
+    # environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Log in to Azure Container Registry
+        run: |
+          az acr login --name ${{ vars.ACR_NAME }}
+
+      - name: Build and Push Backend Docker image to Azure
+        run: |
+          IMAGE_NAME=$(echo "${{ vars.ACR_NAME }}.azurecr.io/${{ vars.STACK }}-backend" | tr '[:upper:]' '[:lower:]')
+          docker build -t $IMAGE_NAME backend
+          docker push $IMAGE_NAME
+
+      - name: Build and Push Frontend Docker image to Azure
+        run: |
+          IMAGE_NAME=$(echo "${{ vars.ACR_NAME }}.azurecr.io/${{ vars.STACK }}-frontend" | tr '[:upper:]' '[:lower:]')
+          docker build -t $IMAGE_NAME frontend
+          docker push $IMAGE_NAME
+
+      # - name: Zip source_code directory
+      #   run: |
+      #     cd source_code
+      #     zip -r ../source_code.zip .
+      #     cd ..
+
+      # - name: Upload source_code.zip to Azure Blob Storage
+      #   run: |
+      #     az storage blob upload \
+      #       --account-name ${{ vars.AZURE_STORAGE_ACCOUNT }} \
+      #       --container-name ${{ vars.AZURE_STORAGE_CONTAINER }} \
+      #       --name $(echo "${{ vars.STACK }}.zip" | tr '[:upper:]' '[:lower:]') \
+      #       --file source_code.zip \
+      #       --sas-token "${{ secrets.AZURE_BLOB_SAS }}" \
+      #       --overwrite
