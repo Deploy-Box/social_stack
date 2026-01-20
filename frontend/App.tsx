@@ -1,8 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, LinkingOptions } from '@react-navigation/native';
 import RootNavigator from './src/navigation/RootNavigator';
+import { RootStackParamList } from './src/types/navigation';
+import { View, StyleSheet, Platform } from 'react-native';
+import * as Linking from 'expo-linking';
 
 // Create a client for React Query
 const queryClient = new QueryClient({
@@ -14,14 +17,31 @@ const queryClient = new QueryClient({
     },
 });
 
-import { View, StyleSheet, Platform } from 'react-native';
+
+
+const linking: LinkingOptions<RootStackParamList> = {
+    prefixes: [Linking.createURL('/')],
+    config: {
+        screens: {
+            LoginScreen: 'login',
+            Main: {
+                screens: {
+                    Feed: 'feed',
+                    Messages: 'messages',
+                    Profile: 'profile',
+                },
+            },
+            ChatScreen: 'chat/:conversationId',
+        },
+    },
+};
 
 export default function App() {
     return (
         <QueryClientProvider client={queryClient}>
             <View style={styles.container}>
                 <View style={[styles.appContainer, Platform.OS === 'web' && styles.webAppContainer]}>
-                    <NavigationContainer>
+                    <NavigationContainer linking={linking}>
                         <RootNavigator />
                     </NavigationContainer>
                     <StatusBar style="auto" />

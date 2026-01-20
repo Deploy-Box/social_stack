@@ -86,15 +86,17 @@ router.get('/callback', async (req: Request, res: Response) => {
         }
 
         // Return user data and access token
-        res.json({
-            user: {
-                id: dbUser.id,
-                workosUserId: dbUser.workos_user_id,
-                email: dbUser.email,
-                name: dbUser.name
-            },
-            accessToken: accessToken
-        });
+        // res.json({
+        //     user: {
+        //         id: dbUser.id,
+        //         workosUserId: dbUser.workos_user_id,
+        //         email: dbUser.email,
+        //         name: dbUser.name
+        //     },
+        //     accessToken: accessToken
+        // });
+
+        res.redirect('http://localhost:8081/main/feed')
     } catch (error: any) {
         logger.error('OAuth callback failed:', error);
         res.status(500).json({
