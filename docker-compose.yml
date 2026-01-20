@@ -6,6 +6,11 @@ services:
     build: ./frontend
     ports:
       - "8081:8081"
+
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
   postgres:
     image: postgres:15-alpine
     container_name: social-stack-postgres
@@ -15,7 +20,7 @@ services:
       POSTGRES_PASSWORD: devpassword
       POSTGRES_DB: social_stack_dev
     ports:
-      - "55432:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./database/schemas:/docker-entrypoint-initdb.d
