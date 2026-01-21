@@ -2,16 +2,37 @@ version: '3.8'
 
 services:
   web:
+    #this service is responsible for running the web version of the frontend of the app for more invormation on the spcific container check the dockerfile in the frontend directory
     container_name: social-stack-web
     build: ./frontend
+    command: npm run web
     ports:
       - "8081:8081"
 
+  mobile:
+    #this service is responsible for running the mobile version of the frontend of the app for more invormation on the spcific container check the dockerfile in the mobile directory
+    #this service assumes the user has the android studio environment setup and has the android emulator running
+    container_name: social-stack-mobile
+    build: ./mobile
+    command: npm run android
+    ports:
+      - "8081:8081"
+
+  redis:
+    image: redis:7.4-alpine # Using a lightweight Alpine-based image
+    restart: always
+    ports:
+      - "6379:6379" # Maps port 6379 on the host to port 6379 in the container
+    volumes:
+      - redis_data:/data # Persists data to a local volume
+
   backend:
+    #this service is responsible for running the backend of the app for more invormation on the spcific container check the dockerfile in the backend directory
     build: ./backend
     ports:
       - "3000:3000"
   postgres:
+    #this service is responsible for running the postgres database
     image: postgres:15-alpine
     container_name: social-stack-postgres
     restart: unless-stopped
@@ -21,6 +42,8 @@ services:
       POSTGRES_DB: social_stack_dev
     ports:
       - "5432:5432"
+    #mounting the schema files directly to docker-entrypoint-initdb.d allows the defalut postgres image to update schemas.
+    #to reset schemas delete the postgres volumes then rebuild and restart the containers.
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./database/schemas:/docker-entrypoint-initdb.d
@@ -31,6 +54,7 @@ services:
       retries: 5
 
   pgadmin:
+    #this service is responsible for running the pgadmin interface for managing the postgres database
     image: dpage/pgadmin4:latest
     container_name: social-stack-pgadmin
     restart: unless-stopped
@@ -48,3 +72,5 @@ services:
 volumes:
   postgres_data:
   pgadmin_data:
+  redis_data:
+    driver: local
