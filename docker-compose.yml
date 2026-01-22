@@ -5,7 +5,8 @@ services:
     #this service is responsible for running the web version of the frontend of the app for more invormation on the spcific container check the dockerfile in the frontend directory
     container_name: social-stack-web
     build: ./frontend
-    command: npm run web
+    command: >
+      /bin/sh -c "npx expo install expo-linking && npm run web"
     ports:
       - "8081:8081"
 
