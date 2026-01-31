@@ -33,13 +33,27 @@ router.get('/login', (req: Request, res: Response) => {
     }
 });
 
-/**
- * GET /auth/callback
- * Handles WorkOS OAuth callback
- */
 router.get('/callback', async (req: Request, res: Response) => {
+    const { code } = req.query;
+
+    if (!code || typeof code !== 'string') {
+        return res.status(400).json({
+            error: 'Bad Request',
+            message: 'Authorization code is required'
+        });
+    }
+
+    res.redirect(`http://localhost:8081/?code=${code}`);
+})
+
+/**
+ * POST /auth/exchange
+ * Handles WorkOS OAuth token exchange
+ */
+router.post('/exchange', async (req: Request, res: Response) => {
+    console.log("exchange");
     try {
-        const { code } = req.query;
+        const { code } = req.body;
 
         if (!code || typeof code !== 'string') {
             return res.status(400).json({
@@ -86,17 +100,16 @@ router.get('/callback', async (req: Request, res: Response) => {
         }
 
         // Return user data and access token
-        // res.json({
-        //     user: {
-        //         id: dbUser.id,
-        //         workosUserId: dbUser.workos_user_id,
-        //         email: dbUser.email,
-        //         name: dbUser.name
-        //     },
-        //     accessToken: accessToken
-        // });
+        res.json({
+            user: {
+                id: dbUser.id,
+                workosUserId: dbUser.workos_user_id,
+                email: dbUser.email,
+                name: dbUser.name
+            },
+            accessToken: accessToken
+        });
 
-        res.redirect('http://localhost:8081/main/feed')
     } catch (error: any) {
         logger.error('OAuth callback failed:', error);
         res.status(500).json({

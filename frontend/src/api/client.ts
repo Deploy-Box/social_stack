@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import * as SecureStore from 'expo-secure-store';
+import Storage from '../utils/storage';
 
 // Get API URL from environment variable
 const API_URL = process.env.API_URL || 'http://localhost:3000/api/v1';
@@ -19,7 +19,7 @@ class ApiClient {
         // Request interceptor to add auth token
         this.client.interceptors.request.use(
             async (config) => {
-                const token = await SecureStore.getItemAsync('authToken');
+                const token = await Storage.getKey('authToken');
                 if (token) {
                     config.headers.Authorization = `Bearer ${token}`;
                 }
@@ -34,7 +34,7 @@ class ApiClient {
             async (error) => {
                 if (error.response?.status === 401) {
                     // Handle unauthorized - clear token and redirect to login
-                    await SecureStore.deleteItemAsync('authToken');
+                    await Storage.removeKey('authToken');
                     // You can add navigation logic here
                 }
                 return Promise.reject(error);
@@ -69,3 +69,4 @@ class ApiClient {
 }
 
 export const apiClient = new ApiClient();
+export default apiClient;

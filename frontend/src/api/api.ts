@@ -12,204 +12,183 @@ import {
     CreateConversationRequest,
     SendMessageRequest,
 } from '../types/types';
-
-// Configure base URL - adjust for your backend
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
-
-// Create axios instance
-const api = axios.create({
-    baseURL: API_BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-});
-
-// Add auth token to requests
-let authToken: string | null = null;
-
-export const setAuthToken = (token: string | null) => {
-    authToken = token;
-    if (token) {
-        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    } else {
-        delete api.defaults.headers.common['Authorization'];
-    }
-};
+import apiClient from './client'
 
 // Auth API
 export const authAPI = {
     initiateLogin: async (): Promise<LoginInitResponse> => {
-        const response = await api.get('/auth/login');
-        return response.data;
+        const response = await apiClient.get<LoginInitResponse>('/auth/login');
+        console.log("response", response)
+        return response;
     },
 
     handleCallback: async (code: string): Promise<AuthResponse> => {
-        const response = await api.get(`/auth/callback?code=${code}`);
-        return response.data;
+        const response = await apiClient.get<AuthResponse>(`/auth/exchange`, { params: { code } });
+        return response;
     },
 
-    getCurrentUser: async (): Promise<{ user: User }> => {
-        const response = await api.get('/auth/me');
-        return response.data;
+    getCurrentUser: async (): Promise<User> => {
+        const response = await apiClient.get<User>('/auth/me');
+        return response
     },
 
     logout: async (): Promise<void> => {
-        await api.post('/auth/logout');
+        await apiClient.post('/auth/logout');
     },
 };
 
 // Profile API
 export const profileAPI = {
-    getProfile: async (userId: string): Promise<{ profile: Profile }> => {
-        const response = await api.get(`/profiles/${userId}`);
-        return response.data;
+    getProfile: async (userId: string): Promise<Profile> => {
+        const response = await apiClient.get<Profile>(`/profiles/${userId}`);
+        return response;
     },
 
-    updateProfile: async (userId: string, data: UpdateProfileRequest): Promise<{ profile: Profile }> => {
-        const response = await api.put(`/profiles/${userId}`, data);
-        return response.data;
+    updateProfile: async (userId: string, data: UpdateProfileRequest): Promise<Profile> => {
+        const response = await apiClient.put<Profile>(`/profiles/${userId}`, data);
+        return response;
     },
 
-    getFollowers: async (userId: string): Promise<{ followers: User[] }> => {
-        const response = await api.get(`/profiles/${userId}/followers`);
-        return response.data;
+    getFollowers: async (userId: string): Promise<User[]> => {
+        const response = await apiClient.get<User[]>(`/profiles/${userId}/followers`);
+        return response;
     },
 
-    getFollowing: async (userId: string): Promise<{ following: User[] }> => {
-        const response = await api.get(`/profiles/${userId}/following`);
-        return response.data;
+    getFollowing: async (userId: string): Promise<User[]> => {
+        const response = await apiClient.get<User[]>(`/profiles/${userId}/following`);
+        return response;
     },
 
     followUser: async (userId: string): Promise<void> => {
-        await api.post(`/profiles/${userId}/follow`);
+        await apiClient.post(`/profiles/${userId}/follow`);
     },
 
     unfollowUser: async (userId: string): Promise<void> => {
-        await api.delete(`/profiles/${userId}/follow`);
+        await apiClient.delete(`/profiles/${userId}/follow`);
     },
 };
 
 // Post API
 export const postAPI = {
-    createPost: async (data: CreatePostRequest): Promise<{ post: Post }> => {
-        const response = await api.post('/posts', data);
-        return response.data;
+    createPost: async (data: CreatePostRequest): Promise<Post> => {
+        const response = await apiClient.post<Post>('/posts', data);
+        return response;
     },
 
-    getPost: async (postId: string): Promise<{ post: Post }> => {
-        const response = await api.get(`/posts/${postId}`);
-        return response.data;
+    getPost: async (postId: string): Promise<Post> => {
+        const response = await apiClient.get<Post>(`/posts/${postId}`);
+        return response;
     },
 
     deletePost: async (postId: string): Promise<void> => {
-        await api.delete(`/posts/${postId}`);
+        await apiClient.delete(`/posts/${postId}`);
     },
 
-    getFeed: async (limit?: number, offset?: number): Promise<{ posts: Post[] }> => {
-        const response = await api.get('/posts/feed/timeline', {
+    getFeed: async (limit?: number, offset?: number): Promise<Post[]> => {
+        const response = await apiClient.get<Post[]>('/posts/feed/timeline', {
             params: { limit, offset },
         });
-        return response.data;
+        return response;
     },
 
-    getUserPosts: async (userId: string, limit?: number, offset?: number): Promise<{ posts: Post[] }> => {
-        const response = await api.get(`/posts/user/${userId}`, {
+    getUserPosts: async (userId: string, limit?: number, offset?: number): Promise<Post[]> => {
+        const response = await apiClient.get<Post[]>(`/posts/user/${userId}`, {
             params: { limit, offset },
         });
-        return response.data;
+        return response;
     },
 
     likePost: async (postId: string): Promise<void> => {
-        await api.post(`/posts/${postId}/like`);
+        await apiClient.post(`/posts/${postId}/like`);
     },
 
     unlikePost: async (postId: string): Promise<void> => {
-        await api.delete(`/posts/${postId}/like`);
+        await apiClient.delete(`/posts/${postId}/like`);
     },
 };
 
 // Message API
 export const messageAPI = {
-    getConversations: async (): Promise<{ conversations: Conversation[] }> => {
-        const response = await api.get('/messages');
-        return response.data;
+    getConversations: async (): Promise<Conversation[]> => {
+        const response = await apiClient.get<Conversation[]>('/messages');
+        return response;
     },
 
-    createConversation: async (data: CreateConversationRequest): Promise<{ conversation: Conversation }> => {
-        const response = await api.post('/messages', data);
-        return response.data;
+    createConversation: async (data: CreateConversationRequest): Promise<Conversation> => {
+        const response = await apiClient.post<Conversation>('/messages', data);
+        return response;
     },
 
-    getMessages: async (conversationId: string, limit?: number, offset?: number): Promise<{ messages: Message[] }> => {
-        const response = await api.get(`/messages/${conversationId}/messages`, {
+    getMessages: async (conversationId: string, limit?: number, offset?: number): Promise<Message[]> => {
+        const response = await apiClient.get<Message[]>(`/messages/${conversationId}/messages`, {
             params: { limit, offset },
         });
-        return response.data;
+        return response;
     },
 
-    sendMessage: async (conversationId: string, data: SendMessageRequest): Promise<{ message: Message }> => {
-        const response = await api.post(`/messages/${conversationId}/messages`, data);
-        return response.data;
+    sendMessage: async (conversationId: string, data: SendMessageRequest): Promise<Message> => {
+        const response = await apiClient.post<Message>(`/messages/${conversationId}/messages`, data);
+        return response;
     },
 };
 
 // Upload API
-export const uploadAPI = {
-    uploadProfileImage: async (imageUri: string): Promise<{ url: string }> => {
-        const formData = new FormData();
+// export const uploadAPI = {
+//     uploadProfileImage: async (imageUri: string): Promise<{ url: string }> => {
+//         const formData = new FormData();
 
-        // Extract filename from URI
-        const filename = imageUri.split('/').pop() || 'image.jpg';
+//         // Extract filename from URI
+//         const filename = imageUri.split('/').pop() || 'image.jpg';
 
-        formData.append('image', {
-            uri: imageUri,
-            type: 'image/jpeg',
-            name: filename,
-        } as any);
+//         formData.append('image', {
+//             uri: imageUri,
+//             type: 'image/jpeg',
+//             name: filename,
+//         } as any);
 
-        const response = await api.post('/uploads/profile-image', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-        return response.data;
-    },
+//         const response = await APIClient.post('/uploads/profile-image', formData, {
+//             headers: {
+//                 'Content-Type': 'multipart/form-data',
+//             },
+//         });
+//         return response;
+//     },
 
-    uploadCoverImage: async (imageUri: string): Promise<{ url: string }> => {
-        const formData = new FormData();
-        const filename = imageUri.split('/').pop() || 'image.jpg';
+//     uploadCoverImage: async (imageUri: string): Promise<{ url: string }> => {
+//         const formData = new FormData();
+//         const filename = imageUri.split('/').pop() || 'image.jpg';
 
-        formData.append('image', {
-            uri: imageUri,
-            type: 'image/jpeg',
-            name: filename,
-        } as any);
+//         formData.append('image', {
+//             uri: imageUri,
+//             type: 'image/jpeg',
+//             name: filename,
+//         } as any);
 
-        const response = await api.post('/uploads/cover-image', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-        return response.data;
-    },
+//         const response = await APIClient.post('/uploads/cover-image', formData, {
+//             headers: {
+//                 'Content-Type': 'multipart/form-data',
+//             },
+//         });
+//         return response;
+//     },
 
-    uploadPostImage: async (imageUri: string): Promise<{ url: string }> => {
-        const formData = new FormData();
-        const filename = imageUri.split('/').pop() || 'image.jpg';
+//     uploadPostImage: async (imageUri: string): Promise<{ url: string }> => {
+//         const formData = new FormData();
+//         const filename = imageUri.split('/').pop() || 'image.jpg';
 
-        formData.append('image', {
-            uri: imageUri,
-            type: 'image/jpeg',
-            name: filename,
-        } as any);
+//         formData.append('image', {
+//             uri: imageUri,
+//             type: 'image/jpeg',
+//             name: filename,
+//         } as any);
 
-        const response = await api.post('/uploads/post-image', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-        return response.data;
-    },
-};
+//         const response = await APIClient.post('/uploads/post-image', formData, {
+//             headers: {
+//                 'Content-Type': 'multipart/form-data',
+//             },
+//         });
+//         return response;
+//     },
+// };
 
-export default api;
+// export default api;
