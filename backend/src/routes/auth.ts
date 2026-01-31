@@ -53,7 +53,8 @@ router.get('/callback', async (req: Request, res: Response) => {
 router.post('/exchange', async (req: Request, res: Response) => {
     console.log("exchange");
     try {
-        const { code } = req.body;
+        const { code } = req.body.data;
+        console.log(code);
 
         if (!code || typeof code !== 'string') {
             return res.status(400).json({
@@ -99,13 +100,27 @@ router.post('/exchange', async (req: Request, res: Response) => {
             dbUser = existingUser.rows[0];
         }
 
+        console.log({
+            user: {
+                id: dbUser.id,
+                workosUserId: dbUser.workos_user_id,
+                email: dbUser.email,
+                name: dbUser.name,
+                createdAt: dbUser.created_at,
+                updatedAt: dbUser.updated_at
+            },
+            accessToken: accessToken
+        });
+
         // Return user data and access token
         res.json({
             user: {
                 id: dbUser.id,
                 workosUserId: dbUser.workos_user_id,
                 email: dbUser.email,
-                name: dbUser.name
+                name: dbUser.name,
+                createdAt: dbUser.created_at,
+                updatedAt: dbUser.updated_at
             },
             accessToken: accessToken
         });

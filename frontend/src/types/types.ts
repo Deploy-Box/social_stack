@@ -9,6 +9,7 @@ export interface User {
     updatedAt: string;
 }
 
+
 export interface Profile {
     userId: string;
     displayName?: string;

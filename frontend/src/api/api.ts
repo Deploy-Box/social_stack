@@ -22,8 +22,8 @@ export const authAPI = {
         return response;
     },
 
-    handleCallback: async (code: string): Promise<AuthResponse> => {
-        const response = await apiClient.get<AuthResponse>(`/auth/exchange`, { params: { code } });
+    handleCallback: async (code: string): Promise<any> => {
+        const response = await apiClient.post<any>(`/auth/exchange`, { data: { code } });
         return response;
     },
 

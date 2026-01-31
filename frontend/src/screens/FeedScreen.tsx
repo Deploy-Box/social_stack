@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
+import { authAPI } from '@/api/api';
 
 // Dummy data for posts
 const DUMMY_POSTS = [
@@ -43,6 +44,7 @@ const DUMMY_POSTS = [
     },
 ];
 
+
 export default function FeedScreen() {
     const [refreshing, setRefreshing] = useState(false);
 
@@ -51,6 +53,17 @@ export default function FeedScreen() {
         // Simulate fetch
         setTimeout(() => setRefreshing(false), 2000);
     }, []);
+
+    useEffect(() => {
+        const url = window.location.href;
+        const params = new URLSearchParams(url.split("?")[1]);
+        const code = params.get("code");
+        console.log(code)
+        if (code) {
+            const response = authAPI.handleCallback(code);
+            console.log(response);
+        }
+    }, [])
 
     const renderPost = ({ item }: { item: typeof DUMMY_POSTS[0] }) => (
         <View style={styles.postContainer}>
