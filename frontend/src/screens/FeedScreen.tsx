@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { authAPI } from '@/api/api';
+import * as Linking from "expo-linking";
 
 // Dummy data for posts
 const DUMMY_POSTS = [
@@ -55,15 +56,36 @@ export default function FeedScreen() {
     }, []);
 
     useEffect(() => {
-        const url = window.location.href;
-        const params = new URLSearchParams(url.split("?")[1]);
-        const code = params.get("code");
-        console.log(code)
-        if (code) {
-            const response = authAPI.handleCallback(code);
-            console.log(response);
-        }
-    }, [])
+        const handleUrl = (url: string) => {
+            const { queryParams } = Linking.parse(url);
+            const code = typeof queryParams?.code === "string" ? queryParams.code : null;
+
+            console.log("code:", code);
+
+            if (code) {
+            // handleCallback is probably async; await it in an IIFE
+            (async () => {
+                try {
+                const response = await authAPI.handleCallback(code);
+                console.log("callback response:", response);
+                } catch (e) {
+                console.error("handleCallback failed:", e);
+                }
+            })();
+            }
+        };
+
+        // 1) handle the initial launch URL (cold start)
+        (async () => {
+            const initialUrl = await Linking.getInitialURL();
+            if (initialUrl) handleUrl(initialUrl);
+        })();
+
+        // 2) handle URLs while the app is already open
+        const sub = Linking.addEventListener("url", ({ url }) => handleUrl(url));
+
+        return () => sub.remove();
+        }, []);
 
     const renderPost = ({ item }: { item: typeof DUMMY_POSTS[0] }) => (
         <View style={styles.postContainer}>
