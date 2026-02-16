@@ -15,7 +15,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     environment: dev
-    # environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+    # environment: ${{ github.ref }}
 
     steps:
       - name: Check out code
@@ -49,6 +49,8 @@ jobs:
 
   upload:
     runs-on: ubuntu-latest
+    environment: dev
+    # environment: ${{ github.ref }}
 
     steps:
       - name: Check out code
