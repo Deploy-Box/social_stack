@@ -10,4 +10,5 @@ export type RootStackParamList = {
     Main: NavigatorScreenParams<BottomTabParamList>;
     ChatScreen: { conversationId: string };
     LoginScreen: undefined;
+    CommentModal: undefined;
 };

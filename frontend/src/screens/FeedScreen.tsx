@@ -5,6 +5,10 @@ import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { authAPI } from '@/api/api';
 import * as Linking from "expo-linking";
+import CommentModal from '@/modals/commentsModal';
+import "../types/types"
+import { PostType } from '../types/types';
+
 
 // Dummy data for posts
 const DUMMY_POSTS = [
@@ -15,10 +19,11 @@ const DUMMY_POSTS = [
             avatar: 'https://i.pravatar.cc/150?u=sarah',
         },
         content: 'Just finished my new hiking trip! The views were absolutely breathtaking. 🏔️ #nature #hiking',
-        image: 'https://picsum.photos/seed/hike/600/400',
+        imageUrl: 'https://picsum.photos/seed/hike/600/400',
+        isLiked: false,
         likes: 124,
         comments: 18,
-        time: '2h ago',
+        createdAt: '2h ago',
     },
     {
         id: '2',
@@ -27,9 +32,10 @@ const DUMMY_POSTS = [
             avatar: 'https://i.pravatar.cc/150?u=alex',
         },
         content: 'Working on a new React Native project. The developer experience is just getting better and better! 💻',
+        isLiked: false,
         likes: 89,
         comments: 12,
-        time: '4h ago',
+        createdAt: '4h ago',
     },
     {
         id: '3',
@@ -38,16 +44,39 @@ const DUMMY_POSTS = [
             avatar: 'https://i.pravatar.cc/150?u=emily',
         },
         content: 'Coffee and coding, the perfect Saturday morning combination. ☕',
-        image: 'https://picsum.photos/seed/coffee/600/400',
+        imageUrl: 'https://picsum.photos/seed/coffee/600/400',
+        isLiked: false,
         likes: 256,
         comments: 42,
-        time: '6h ago',
+        createdAt: '6h ago',
     },
 ];
 
 
 export default function FeedScreen() {
     const [refreshing, setRefreshing] = useState(false);
+    const [posts, setPosts] = useState(DUMMY_POSTS.map(p => ({...p, isLiked: p.isLiked ?? false})));
+    const [isCommentsVisible, setIsCommentsVisible] = useState(false); //used to display the comment section modal
+    const [selectedPost, setSelectedPost] = useState<typeof DUMMY_POSTS[0] | null>(null); //used to store a selected post for comments section rendering
+
+
+    const toggleLike = (postId: string) => {
+        setPosts((prev) => {
+            return prev.map((post) => {
+                if (post.id !== postId) return post;
+
+                const isCurrentlyLiked = post.isLiked;
+
+                return {
+                    ...post,
+                    isLiked: !isCurrentlyLiked,
+                    likes: isCurrentlyLiked ? post.likes - 1 : post.likes + 1,
+                };
+
+            });
+        });
+    };
+
 
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
@@ -87,33 +116,33 @@ export default function FeedScreen() {
         return () => sub.remove();
         }, []);
 
-    const renderPost = ({ item }: { item: typeof DUMMY_POSTS[0] }) => (
+    const renderPost = ({ post }: { post: PostType }) => (
         <View style={styles.postContainer}>
             <View style={styles.postHeader}>
-                <Image source={{ uri: item.user.avatar }} style={styles.avatar} />
+                <Image source={{ uri: post.user.avatar }} style={styles.avatar} />
                 <View style={styles.userInfo}>
-                    <Text style={styles.userName}>{item.user.name}</Text>
-                    <Text style={styles.time}>{item.time}</Text>
+                    <Text style={styles.userName}>{post.user.name}</Text>
+                    <Text style={styles.time}>{post.createdAt}</Text>
                 </View>
                 <TouchableOpacity>
                     <Ionicons name="ellipsis-horizontal" size={20} color="#6b7280" />
                 </TouchableOpacity>
             </View>
 
-            <Text style={styles.content}>{item.content}</Text>
+            <Text style={styles.content}>{post.content}</Text>
 
-            {item.image && (
-                <Image source={{ uri: item.image }} style={styles.postImage} />
+            {post.imageUrl && (
+                <Image source={{ uri: post.imageUrl }} style={styles.postImage} />
             )}
 
             <View style={styles.postFooter}>
-                <TouchableOpacity style={styles.actionButton}>
-                    <Ionicons name="heart-outline" size={24} color="#4b5563" />
-                    <Text style={styles.actionText}>{item.likes}</Text>
+                <TouchableOpacity style={styles.actionButton} onPress={() => toggleLike(post.id)}>
+                    <Ionicons name={post.isLiked ? "heart": "heart-outline"} size={24} color={post.isLiked ? "red": "#4b5563"} />
+                    <Text style={styles.actionText}>{post.likes}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.actionButton}>
+                <TouchableOpacity style={styles.actionButton} onPress={() => {setSelectedPost(post); setIsCommentsVisible(true)}}>
                     <Ionicons name="chatbubble-outline" size={24} color="#4b5563" />
-                    <Text style={styles.actionText}>{item.comments}</Text>
+                    <Text style={styles.actionText}>{post.comments}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.actionButton}>
                     <Ionicons name="share-social-outline" size={24} color="#4b5563" />
@@ -132,14 +161,15 @@ export default function FeedScreen() {
                 </TouchableOpacity>
             </View>
             <FlatList
-                data={DUMMY_POSTS}
+                data={posts}
                 renderItem={renderPost}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(post) => post.id}
                 contentContainerStyle={styles.listContent}
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                 }
             />
+            <CommentModal visible={isCommentsVisible} post={selectedPost} onClose={() => setIsCommentsVisible(false)}/>
             <TouchableOpacity style={styles.fab}>
                 <Ionicons name="add" size={30} color="#fff" />
             </TouchableOpacity>

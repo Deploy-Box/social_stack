@@ -3,6 +3,7 @@
 export interface User {
     id: string;
     workosUserId: string;
+    avatar: string;
     email: string;
     name: string;
     createdAt: string;
@@ -23,9 +24,9 @@ export interface Profile {
     postCount?: number;
 }
 
-export interface Post {
+export interface PostType {
     id: string;
-    userId: string;
+    user: User;
     content: string;
     imageUrl?: string;
     createdAt: string;
@@ -33,8 +34,8 @@ export interface Post {
     authorName?: string;
     authorEmail?: string;
     authorDisplayName?: string;
-    authorAvatar?: string;
-    likeCount?: number;
+    likes: number; //todo: need to remove and add a likes table
+    isLiked: boolean; //todo: need to remove and add a likes table
 }
 
 export interface Conversation {

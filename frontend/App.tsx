@@ -34,6 +34,7 @@ const linking: LinkingOptions<RootStackParamList> = {
                 },
             },
             ChatScreen: 'chat/:conversationId',
+            CommentModal: '/commentmodal'
         },
     },
 };
