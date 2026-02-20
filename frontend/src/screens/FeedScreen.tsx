@@ -116,33 +116,33 @@ export default function FeedScreen() {
         return () => sub.remove();
         }, []);
 
-    const renderPost = ({ post }: { post: PostType }) => (
+    const renderPost = ({ item }: { item: PostType }) => (
         <View style={styles.postContainer}>
             <View style={styles.postHeader}>
-                <Image source={{ uri: post.user.avatar }} style={styles.avatar} />
+                <Image source={{ uri: item.user.avatar }} style={styles.avatar} />
                 <View style={styles.userInfo}>
-                    <Text style={styles.userName}>{post.user.name}</Text>
-                    <Text style={styles.time}>{post.createdAt}</Text>
+                    <Text style={styles.userName}>{item.user.name}</Text>
+                    <Text style={styles.time}>{item.createdAt}</Text>
                 </View>
                 <TouchableOpacity>
                     <Ionicons name="ellipsis-horizontal" size={20} color="#6b7280" />
                 </TouchableOpacity>
             </View>
 
-            <Text style={styles.content}>{post.content}</Text>
+            <Text style={styles.content}>{item.content}</Text>
 
-            {post.imageUrl && (
-                <Image source={{ uri: post.imageUrl }} style={styles.postImage} />
+            {item.imageUrl && (
+                <Image source={{ uri: item.imageUrl }} style={styles.postImage} />
             )}
 
             <View style={styles.postFooter}>
-                <TouchableOpacity style={styles.actionButton} onPress={() => toggleLike(post.id)}>
-                    <Ionicons name={post.isLiked ? "heart": "heart-outline"} size={24} color={post.isLiked ? "red": "#4b5563"} />
-                    <Text style={styles.actionText}>{post.likes}</Text>
+                <TouchableOpacity style={styles.actionButton} onPress={() => toggleLike(item.id)}>
+                    <Ionicons name={item.isLiked ? "heart": "heart-outline"} size={24} color={item.isLiked ? "red": "#4b5563"} />
+                    <Text style={styles.actionText}>{item.likes}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.actionButton} onPress={() => {setSelectedPost(post); setIsCommentsVisible(true)}}>
+                <TouchableOpacity style={styles.actionButton} onPress={() => {setSelectedPost(item); setIsCommentsVisible(true)}}>
                     <Ionicons name="chatbubble-outline" size={24} color="#4b5563" />
-                    <Text style={styles.actionText}>{post.comments}</Text>
+                    <Text style={styles.actionText}>{item.comments}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.actionButton}>
                     <Ionicons name="share-social-outline" size={24} color="#4b5563" />

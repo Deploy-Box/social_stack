@@ -34,6 +34,7 @@ export interface PostType {
     authorName?: string;
     authorEmail?: string;
     authorDisplayName?: string;
+    comments: number; //todo: need to figure out the best way to do this
     likes: number; //todo: need to remove and add a likes table
     isLiked: boolean; //todo: need to remove and add a likes table
 }
