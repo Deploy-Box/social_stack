@@ -40,6 +40,51 @@ const DUMMY_CONVERSATIONS = [
     },
 ];
 
+type CommentType = {
+  id: string
+  postId: string
+  user: {
+    name: string
+    avatar: string
+  }
+  content: string
+  createdAt: string
+}
+
+const DUMMY_COMMENTS: CommentType[] = [
+  {
+    id: "c1",
+    postId: "1",
+    user: {
+      name: "Alex Rivera",
+      avatar: "https://i.pravatar.cc/150?img=11"
+    },
+    content: "This is awesome 🔥",
+    createdAt: "2h ago"
+  },
+  {
+    id: "c2",
+    postId: "1",
+    user: {
+      name: "Samantha Lee",
+      avatar: "https://i.pravatar.cc/150?img=12"
+    },
+    content: "Love this idea!",
+    createdAt: "1h ago"
+  },
+  {
+    id: "c3",
+    postId: "2",
+    user: {
+      name: "Marcus Chen",
+      avatar: "https://i.pravatar.cc/150?img=13"
+    },
+    content: "Can you explain more?",
+    createdAt: "30m ago"
+  }
+];
+
+
 export default function MessagingScreen() {
 
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>(); // Navigation hook for react app

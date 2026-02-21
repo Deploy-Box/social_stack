@@ -9,6 +9,50 @@ import CommentModal from '@/modals/commentsModal';
 import "../types/types"
 import { PostType } from '../types/types';
 
+type CommentType = {
+    id: string;
+    postId: string;
+    user: {
+        name: string;
+        avatar: string;
+    };
+    content: string;
+    createdAt: string;
+};
+
+// Dummy data for comments (filtered by postId)
+const DUMMY_COMMENTS: CommentType[] = [
+    {
+        id: 'c1',
+        postId: '1',
+        user: { name: 'Alex Rivera', avatar: 'https://i.pravatar.cc/150?u=alex_rivera' },
+        content: 'Those views look unreal 🔥',
+        createdAt: '1h ago',
+    },
+    {
+        id: 'c2',
+        postId: '1',
+        user: { name: 'Maya Patel', avatar: 'https://i.pravatar.cc/150?u=maya' },
+        content: 'Adding this to my hiking list.',
+        createdAt: '45m ago',
+    },
+    {
+        id: 'c3',
+        postId: '2',
+        user: { name: 'Jordan Kim', avatar: 'https://i.pravatar.cc/150?u=jordan' },
+        content: 'RN dev has been so fun lately — what are you building?',
+        createdAt: '2h ago',
+    },
+    {
+        id: 'c4',
+        postId: '3',
+        user: { name: 'Emily Davis', avatar: 'https://i.pravatar.cc/150?u=emily2' },
+        content: 'Coffee + coding = peak productivity ☕️💻',
+        createdAt: '3h ago',
+    },
+];
+
+
 
 // Dummy data for posts
 const DUMMY_POSTS = [
@@ -57,7 +101,11 @@ export default function FeedScreen() {
     const [refreshing, setRefreshing] = useState(false);
     const [posts, setPosts] = useState(DUMMY_POSTS.map(p => ({...p, isLiked: p.isLiked ?? false})));
     const [isCommentsVisible, setIsCommentsVisible] = useState(false); //used to display the comment section modal
-    const [selectedPost, setSelectedPost] = useState<typeof DUMMY_POSTS[0] | null>(null); //used to store a selected post for comments section rendering
+    const [selectedPost, setSelectedPost] = useState<PostType | null>(null); //used to store a selected post for comments section rendering
+    const commentsForSelectedPost = selectedPost
+        ? DUMMY_COMMENTS.filter((c) => c.postId === selectedPost.id)
+        : [];
+
 
 
     const toggleLike = (postId: string) => {
@@ -169,7 +217,7 @@ export default function FeedScreen() {
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                 }
             />
-            <CommentModal visible={isCommentsVisible} post={selectedPost} onClose={() => setIsCommentsVisible(false)}/>
+            <CommentModal visible={isCommentsVisible} post={selectedPost} comments={commentsForSelectedPost} onClose={() => setIsCommentsVisible(false)} />
             <TouchableOpacity style={styles.fab}>
                 <Ionicons name="add" size={30} color="#fff" />
             </TouchableOpacity>
