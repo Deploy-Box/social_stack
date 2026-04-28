@@ -110,9 +110,9 @@ jobs:
       price_id: "price_social_basic"
       environment: ${{ needs.resolve-env.outputs.environment }}
     secrets:
-      DEPLOYBOX_DB_HOST: ${{ secrets.DEPLOYBOX_DB_HOST }}
-      DEPLOYBOX_DB_PORT: ${{ secrets.DEPLOYBOX_DB_PORT }}
-      DEPLOYBOX_DB_NAME: ${{ secrets.DEPLOYBOX_DB_NAME }}
-      DEPLOYBOX_DB_USER: ${{ secrets.DEPLOYBOX_DB_USER }}
-      DEPLOYBOX_DB_PASSWORD: ${{ secrets.DEPLOYBOX_DB_PASSWORD }}
+      DEPLOYBOX_DB_HOST: ${{ needs.resolve-env.outputs.environment == 'prod' && secrets.PROD_DEPLOYBOX_DB_HOST || needs.resolve-env.outputs.environment == 'test' && secrets.TEST_DEPLOYBOX_DB_HOST || secrets.DEV_DEPLOYBOX_DB_HOST }}
+      DEPLOYBOX_DB_PORT: ${{ needs.resolve-env.outputs.environment == 'prod' && secrets.PROD_DEPLOYBOX_DB_PORT || needs.resolve-env.outputs.environment == 'test' && secrets.TEST_DEPLOYBOX_DB_PORT || secrets.DEV_DEPLOYBOX_DB_PORT }}
+      DEPLOYBOX_DB_NAME: ${{ needs.resolve-env.outputs.environment == 'prod' && secrets.PROD_DEPLOYBOX_DB_NAME || needs.resolve-env.outputs.environment == 'test' && secrets.TEST_DEPLOYBOX_DB_NAME || secrets.DEV_DEPLOYBOX_DB_NAME }}
+      DEPLOYBOX_DB_USER: ${{ needs.resolve-env.outputs.environment == 'prod' && secrets.PROD_DEPLOYBOX_DB_USER || needs.resolve-env.outputs.environment == 'test' && secrets.TEST_DEPLOYBOX_DB_USER || secrets.DEV_DEPLOYBOX_DB_USER }}
+      DEPLOYBOX_DB_PASSWORD: ${{ needs.resolve-env.outputs.environment == 'prod' && secrets.PROD_DEPLOYBOX_DB_PASSWORD || needs.resolve-env.outputs.environment == 'test' && secrets.TEST_DEPLOYBOX_DB_PASSWORD || secrets.DEV_DEPLOYBOX_DB_PASSWORD }}
 
