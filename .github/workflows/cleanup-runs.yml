@@ -1,0 +1,13 @@
+name: Cleanup old workflow runs
+
+on:
+  schedule:
+    - cron: "0 3 * * 0"
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    uses: Deploy-Box/deploy-box-platform/.github/workflows/cleanup-runs.yml@dev
+    permissions:
+      actions: write
+      contents: read
